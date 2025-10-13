@@ -14,6 +14,9 @@
     ansible.builtin.pip:
       executable: pip3.9
       name: PyMySQL
+    loop:
+    - cryptography
+    - PyMySQL
 
   - name: create roboshop system user
     ansible.builtin.user:
@@ -74,4 +77,11 @@
     - /app/db/schema.sql
     - /app/db/app-user.sql
     - /app/db/master-data.sql
+
+  - name: daemon reload enable and start
+    ansible.builtin.systemd_service:
+      name: shipping
+      enabled: true
+      state: started
+      daemon_reload: true
   

@@ -8,26 +8,25 @@
   - name: enable nodejs 20
     ansible.builtin.command: dnf module enable nodejs:20 -y
 
-  - name: install nodejs 
+  - name: install nodejs
     ansible.builtin.package:
       name: nodejs
       state: present
-  
+
   - name: create roboshop system user
     ansible.builtin.user:
-      name: roboshop 
-      comment: roboshop system user
-      system: true 
+      name: roboshop
+      comment: RoboShop System user
+      system: true
       shell: /sbin/nologin
       home: /app
-
   # Safe to remove directory, because 2nd time if we run it will download freshly. no error if does not exist
   - name: remove app directory
     ansible.builtin.file:
       path: /app
       state: absent
-    
-  - name: create app directory 
+
+  - name: create app directory
     ansible.builtin.file:
       state: directory
       path: /app
@@ -37,12 +36,12 @@
       path: /tmp/catalogue.zip
       state: absent
 
-  - name: download catalogue app 
+  - name: download catalogue application
     ansible.builtin.get_url:
       url: https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip
       dest: /tmp/catalogue.zip
 
-  - name: extract catalogue Application
+  - name: extract catalogue application
     ansible.builtin.unarchive:
       src: /tmp/catalogue.zip
       dest: /app
@@ -50,42 +49,42 @@
 
   - name: install dependencies
     community.general.npm:
-      path: /app 
+      path: /app
 
-  - name: copy catalogue service 
+  - name: copy catalogue service
     ansible.builtin.copy:
       src: catalogue.service
       dest: /etc/systemd/system/catalogue.service
 
-  - name: copy mongo repo 
+  - name: copy mongo repo
     ansible.builtin.copy:
-    src: mongo.repo
-    dest: /etc/yum.repos.d/mongo.repo
-  
-  - name: install mongodb client 
+      src: mongo.repo
+      dest: /etc/yum.repos.d/mongo.repo
+
+  - name: install mongodb client
     ansible.builtin.package:
       name: mongodb-mongosh
-      state: present 
+      state: present
 
-  - name: connect to mongodb catalogue 
+  - name: connnect to mongodb catalogue
     ansible.builtin.command: mongosh mongodb.umamaheswarreddy.fun --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')"
-    register: catalogue_output 
+    register: catalogue_output
 
-  # - name: evaluate catalogue database
+  # - name: evaluate cataalogue database
   #   community.mongodb.mongodb_shell:
   #     login_host: mongodb.umamaheswarreddy.fun
   #     eval: db.getMongo().getDBNames().indexOf('catalogue')
   #   register: catalogue_output
 
-  - name: print catalogue output
-    ansible.builtin.debug:
-      msg: "{{ catalogue_output }}"
+  # - name: print catalogue output
+  #   ansible.builtin.debug:
+  #     msg: "{{ catalogue_output }}"
 
   - name: load products into mongodb
-    ansible.builtin.shell: mongosh --host mongodb.daws86s.fun </app/db/master-data.js
+    ansible.builtin.shell: mongosh --host mongodb.umamaheswarreddy.fun </app/db/master-data.js
     when: catalogue_output.stdout | int < 0
 
-  # - name: start and enable catalogue
+  # - name: start and enable cataalogue
   #   ansible.builtin.service:
   #     name: catalogue
   #     enabled: yes
@@ -97,3 +96,4 @@
       enabled: true
       state: started
       daemon_reload: true
+  

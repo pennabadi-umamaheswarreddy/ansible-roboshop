@@ -9,7 +9,7 @@ hostnames:
 compose: 
   # this sets the 'ansible_host' variable to connect with the Private IP address without changing the host 
   ansible_host: private-ip-address
-key_groups:
+keyed_groups:
   # add hosts to tag_name_value groups for each aws_ec2 host's tags.Name variable
   - key: tags.Name
     prefix: "dynamic" #dynamic_frontend
